@@ -33,7 +33,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<Page>('home')
 
 return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       <Sidebar
         open={sidebarOpen}
         activePage={activePage}
@@ -50,7 +50,7 @@ return (
           flexGrow: 1,
           pt: 5,
           pl: 6,
-          pr: 3,
+          pr: 6,
           pb: 3,
           bgcolor: '#f5eeff',
         }}

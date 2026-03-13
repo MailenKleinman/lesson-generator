@@ -14,7 +14,7 @@ import {
 import { Download, Upload, DeleteOutline } from '@mui/icons-material'
 
 const exports = [
-  { label: 'All lessons', size: '2.4 MB', date: 'Mar 8, 2026' },
+  { label: 'All tools', size: '2.4 MB', date: 'Mar 8, 2026' },
   { label: 'Standards library', size: '512 KB', date: 'Mar 1, 2026' },
   { label: 'User activity log', size: '1.1 MB', date: 'Feb 22, 2026' },
 ]
@@ -60,7 +60,7 @@ export default function DataManagement() {
           <Divider sx={{ mb: 2 }} />
           <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
             <Box>
-              <Typography variant="body2" fontWeight={500}>Delete all lessons</Typography>
+              <Typography variant="body2" fontWeight={500}>Delete all tools</Typography>
               <Typography variant="caption" color="text.secondary">This action cannot be undone.</Typography>
             </Box>
             <Button variant="outlined" color="error" startIcon={<DeleteOutline />} size="small">

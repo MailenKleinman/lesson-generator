@@ -2,7 +2,7 @@ import { Typography, Grid, Card, CardContent, Box } from '@mui/material'
 import { MenuBook, People, Quiz, TrendingUp } from '@mui/icons-material'
 
 const stats = [
-  { label: 'Total Lessons', value: 24, icon: <MenuBook fontSize="large" color="primary" /> },
+  { label: 'Total Tools', value: 24, icon: <MenuBook fontSize="large" color="primary" /> },
   { label: 'Students', value: 138, icon: <People fontSize="large" color="secondary" /> },
   { label: 'Quizzes', value: 12, icon: <Quiz fontSize="large" color="success" /> },
   { label: 'Avg. Score', value: '87%', icon: <TrendingUp fontSize="large" color="warning" /> },
@@ -15,11 +15,11 @@ export default function Dashboard() {
         Dashboard
       </Typography>
       <Typography variant="body1" color="text.secondary" mb={4}>
-        Welcome back! Here's an overview of your lesson activity.
+        Welcome back! Here's an overview of your tool activity.
       </Typography>
       <Grid container spacing={3}>
         {stats.map((stat) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.label}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={stat.label}>
             <Card>
               <CardContent>
                 <Box display="flex" alignItems="center" gap={2}>

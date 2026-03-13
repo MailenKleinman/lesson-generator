@@ -1,10 +1,10 @@
 import { Typography, Box, Paper, Stack, TextField, Button, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { ExpandMore } from '@mui/icons-material'
+import { ExpandMore, Email } from '@mui/icons-material'
 
 const faqs = [
-  { q: 'How do I create a lesson?', a: 'Navigate to "Create new lesson" from the sidebar, fill in the lesson details, and click Generate.' },
-  { q: 'Can I edit a generated lesson?', a: 'Yes. Open any lesson from "My lessons" and use the Edit button to modify its content.' },
-  { q: 'How do I share a lesson with students?', a: 'Open the lesson and click the Share button to get a shareable link or export it as a PDF.' },
+  { q: 'How do I create a tool?', a: 'Navigate to "Create new tool" from the sidebar, fill in the tool details, and click Generate.' },
+  { q: 'Can I edit a generated tool?', a: 'Yes. Open any tool from "My tools" and use the Edit button to modify its content.' },
+  { q: 'How do I share a tool with students?', a: 'Open the tool and click the Share button to get a shareable link or export it as a PDF.' },
   { q: 'How do I reset my password?', a: 'Go to your Profile page and click "Change password", or use the Forgot password link on the login screen.' },
 ]
 
@@ -17,6 +17,14 @@ export default function Support() {
       <Typography variant="body1" color="text.secondary" mb={3}>
         Find answers to common questions or contact our support team.
       </Typography>
+
+      <Paper sx={{ p: 2.5, mb: 4, maxWidth: 560, display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: 'primary.main', color: 'white' }}>
+        <Email />
+        <Box>
+          <Typography variant="body2" sx={{ opacity: 0.85 }}>Contact us directly at</Typography>
+          <Typography fontWeight={600}>support@onyx.com</Typography>
+        </Box>
+      </Paper>
 
       <Typography variant="h6" gutterBottom>Frequently Asked Questions</Typography>
       <Box mb={4} maxWidth={560}>

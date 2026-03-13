@@ -13,6 +13,15 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Poppins, sans-serif',
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        'html, body': {
+          overflowX: 'hidden',
+        },
+      },
+    },
+  },
 })
 
 createRoot(document.getElementById('root')!).render(

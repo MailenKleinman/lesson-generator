@@ -45,8 +45,8 @@ interface NavItem {
 
 const MAIN_ITEMS: NavItem[] = [
   { id: 'home', label: 'Home', icon: <Home /> },
-  { id: 'createLesson', label: 'Create new lesson', icon: <AddCircleOutline /> },
-  { id: 'myLessons', label: 'My lessons', icon: <MenuBook /> },
+  { id: 'createLesson', label: 'Create new tool', icon: <AddCircleOutline /> },
+  { id: 'myLessons', label: 'My tools', icon: <MenuBook /> },
 ]
 
 const SUPPORT_ITEMS: NavItem[] = [
@@ -124,6 +124,14 @@ export default function Sidebar({ open, activePage, onToggle, onNavigate }: Side
         flexShrink: 0,
         whiteSpace: 'nowrap',
         boxSizing: 'border-box',
+        overflow: 'hidden',
+        transition: (theme) =>
+          theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: open
+              ? theme.transitions.duration.enteringScreen
+              : theme.transitions.duration.leavingScreen,
+          }),
         '& .MuiDrawer-paper': {
           width,
           overflowX: 'hidden',

@@ -1,51 +1,84 @@
-import { Typography, Box, Paper, Stack, TextField, MenuItem, Button, Chip } from '@mui/material'
+import {
+  Typography, Box, Button, Chip, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Paper, Stack, IconButton,
+} from '@mui/material'
+import { Add, Edit, Delete } from '@mui/icons-material'
 import { useState } from 'react'
 
-const frameworks = ['Common Core', 'Next Generation Science Standards', 'TEKS', 'Virginia SOL', 'Custom']
+interface Standard {
+  id: number
+  description: string
+  tags: string[]
+}
+
+const initialStandards: Standard[] = [
+  { id: 1, description: 'New York State Mathematics Learning Standards (NY-MLS)', tags: ['Math', 'New York'] },
+  { id: 2, description: 'Common Core State Standards for Mathematics (CCSS-M)', tags: ['Math', 'Common Core', 'National'] },
+  { id: 3, description: 'GLEAM Framework (Culturally Responsive ELA Learning)', tags: ['ELA', 'GLEAM'] },
+  { id: 4, description: 'Tennessee Essential Knowledge and Skills (TEKS) – Mathematics', tags: ['Math', 'Tennessee'] },
+]
 
 export default function AddStandards() {
-  const [tags, setTags] = useState<string[]>(['CCSS.Math.Content.5.NBT'])
+  const [standards, setStandards] = useState<Standard[]>(initialStandards)
 
-  const handleAdd = () => {
-    setTags((t) => [...t, `Standard-${t.length + 1}`])
+  const handleDelete = (id: number) => {
+    setStandards((prev) => prev.filter((s) => s.id !== id))
   }
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom fontWeight={600}>
-        Add Standards
-      </Typography>
-      <Typography variant="body1" color="text.secondary" mb={3}>
-        Define and manage curriculum standards aligned to your lessons.
-      </Typography>
-      <Paper sx={{ p: 3, maxWidth: 600 }}>
-        <Stack spacing={3}>
-          <TextField label="Standards Framework" select fullWidth defaultValue="">
-            {frameworks.map((f) => (
-              <MenuItem key={f} value={f}>{f}</MenuItem>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box>
+          <Typography variant="h4" fontWeight={600}>Standards</Typography>
+          <Typography variant="body1" color="text.secondary">
+            Manage curriculum standards aligned to your tools.
+          </Typography>
+        </Box>
+        <Button variant="contained" startIcon={<Add />}>
+          Add Standard
+        </Button>
+      </Stack>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><Typography fontWeight={600}>Description</Typography></TableCell>
+              <TableCell><Typography fontWeight={600}>Tags</Typography></TableCell>
+              <TableCell align="right"><Typography fontWeight={600}>Actions</Typography></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {standards.map((standard) => (
+              <TableRow key={standard.id} hover>
+                <TableCell>{standard.description}</TableCell>
+                <TableCell>
+                  <Stack direction="row" gap={0.5} flexWrap="wrap">
+                    {standard.tags.map((tag) => (
+                      <Chip key={tag} label={tag} size="small" />
+                    ))}
+                  </Stack>
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton size="small" color="primary">
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => handleDelete(standard.id)} color="error">
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
             ))}
-          </TextField>
-          <TextField label="Standard Code" fullWidth placeholder="e.g. CCSS.ELA-Literacy.RI.5.1" />
-          <TextField label="Description" multiline rows={3} fullWidth placeholder="Describe what students should know or be able to do." />
-          <Box>
-            <Typography variant="body2" gutterBottom>Applied tags</Typography>
-            <Box display="flex" flexWrap="wrap" gap={1} mb={1}>
-              {tags.map((tag) => (
-                <Chip
-                  key={tag}
-                  label={tag}
-                  size="small"
-                  onDelete={() => setTags((t) => t.filter((x) => x !== tag))}
-                />
-              ))}
-            </Box>
-            <Button size="small" onClick={handleAdd}>+ Add tag</Button>
-          </Box>
-          <Box>
-            <Button variant="contained">Save Standard</Button>
-          </Box>
-        </Stack>
-      </Paper>
+            {standards.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Typography color="text.secondary" py={3}>No standards yet. Click "Add Standard" to get started.</Typography>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   )
 }

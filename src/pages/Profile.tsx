@@ -1,7 +1,21 @@
 import { Typography, Box, Paper, Avatar, TextField, Button, Divider, MenuItem, Chip, Stack } from '@mui/material'
 import { useState } from 'react'
 
-const roles = ['Teacher', 'Administrator', 'Curriculum Coordinator', 'Instructional Coach', 'Other']
+const roles = [
+  'Assistant Principal',
+  'Assistant Superintendent',
+  'Classroom Teacher',
+  'Content Specialist',
+  'Department Head',
+  'ELL/ESL/EL Teacher',
+  'Instructional Coach',
+  'Library or Media Specialist',
+  'Other',
+  'Principal',
+  'Special Education Teacher',
+  'Superintendent',
+  'Technology Administrator',
+]
 
 const usStates = [
   'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware',
@@ -13,7 +27,7 @@ const usStates = [
   'Virginia','Washington','West Virginia','Wisconsin','Wyoming',
 ]
 
-const standards = ['Common Core', 'NGSS', 'TEKS', 'Virginia SOL', 'Custom']
+const standards = ['Common Core', 'California State Standard', 'Custom']
 const grades = ['K','1','2','3','4','5','6','7','8','9','10','11','12']
 const subjects = ['Math','ELA','Science','Social Studies','Art','Music','Physical Education','Foreign Language','Technology','Special Education']
 
@@ -60,7 +74,7 @@ export default function Profile() {
 
           {/* Row 2: Role, State, Standard */}
           <Box sx={col3}>
-            <TextField label="Role" select defaultValue="Teacher" fullWidth>
+            <TextField label="Role" select defaultValue="Classroom Teacher" fullWidth>
               {roles.map((r) => <MenuItem key={r} value={r}>{r}</MenuItem>)}
             </TextField>
             <TextField label="State" select defaultValue="California" fullWidth>

@@ -21,6 +21,7 @@ import {
   Rule,
   Storage,
   ManageAccounts,
+  LibraryBooks,
   ChevronLeft,
   ChevronRight,
   Logout,
@@ -36,6 +37,7 @@ export type Page =
   | 'addStandards'
   | 'dataManagement'
   | 'usersManagement'
+  | 'contentEditor'
 
 interface NavItem {
   id: Page
@@ -56,9 +58,10 @@ const SUPPORT_ITEMS: NavItem[] = [
 ]
 
 const ADMIN_ITEMS: NavItem[] = [
-  { id: 'addStandards', label: 'Add standards', icon: <Rule /> },
+  { id: 'addStandards', label: 'Standards Management', icon: <Rule /> },
   { id: 'dataManagement', label: 'Data Management', icon: <Storage /> },
   { id: 'usersManagement', label: 'Users Management', icon: <ManageAccounts /> },
+  { id: 'contentEditor', label: 'Source Management', icon: <LibraryBooks /> },
 ]
 
 export const SIDEBAR_EXPANDED = 240

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import Sidebar, { Page } from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import CreateLesson from './pages/CreateLesson'
@@ -22,6 +22,7 @@ function renderPage(page: Page) {
     case 'addStandards': return <AddStandards />
     case 'dataManagement': return <DataManagement />
     case 'usersManagement': return <UsersManagement />
+    case 'contentEditor': return <Box sx={{ p: 2 }}><Typography variant="h4" fontWeight={600}>Source Management</Typography></Box>
   }
 }
 

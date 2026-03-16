@@ -23,6 +23,7 @@ function renderPage(page: Page) {
     case 'dataManagement': return <DataManagement />
     case 'usersManagement': return <UsersManagement />
     case 'contentEditor': return <Box sx={{ p: 2 }}><Typography variant="h4" fontWeight={600}>Source Management</Typography></Box>
+    case 'topicManagement': return <Box><Typography variant="h4" fontWeight={600}>Topic Management</Typography></Box>
   }
 }
 

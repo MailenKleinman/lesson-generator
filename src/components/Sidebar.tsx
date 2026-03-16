@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Logout,
+  Topic,
 } from '@mui/icons-material'
 
 export type Page =
@@ -38,6 +39,7 @@ export type Page =
   | 'dataManagement'
   | 'usersManagement'
   | 'contentEditor'
+  | 'topicManagement'
 
 interface NavItem {
   id: Page
@@ -58,10 +60,11 @@ const SUPPORT_ITEMS: NavItem[] = [
 ]
 
 const ADMIN_ITEMS: NavItem[] = [
-  { id: 'addStandards', label: 'Standards Management', icon: <Rule /> },
-  { id: 'dataManagement', label: 'Data Management', icon: <Storage /> },
-  { id: 'usersManagement', label: 'Users Management', icon: <ManageAccounts /> },
-  { id: 'contentEditor', label: 'Source Management', icon: <LibraryBooks /> },
+  { id: 'addStandards', label: 'Standards', icon: <Rule /> },
+  { id: 'contentEditor', label: 'Sources', icon: <LibraryBooks /> },
+  { id: 'topicManagement', label: 'Topics', icon: <Topic /> },
+  { id: 'dataManagement', label: 'Data', icon: <Storage /> },
+  { id: 'usersManagement', label: 'Users', icon: <ManageAccounts /> },
 ]
 
 export const SIDEBAR_EXPANDED = 240
@@ -84,7 +87,7 @@ export default function Sidebar({ open, activePage, onToggle, onNavigate }: Side
           selected={activePage === item.id}
           onClick={() => onNavigate(item.id)}
           sx={{
-            minHeight: 48,
+            minHeight: 36,
             justifyContent: open ? 'initial' : 'center',
             px: 2.5,
           }}
@@ -194,7 +197,7 @@ export default function Sidebar({ open, activePage, onToggle, onNavigate }: Side
             <ListItemButton
               onClick={() => {}}
               sx={{
-                minHeight: 48,
+                minHeight: 36,
                 justifyContent: open ? 'initial' : 'center',
                 px: 2.5,
                 color: 'error.main',

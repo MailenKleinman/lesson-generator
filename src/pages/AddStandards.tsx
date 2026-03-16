@@ -14,7 +14,6 @@ interface Standard {
 const initialStandards: Standard[] = [
   { id: 1, description: 'New York State Mathematics Learning Standards (NY-MLS)', tags: ['Math', 'New York'] },
   { id: 2, description: 'Common Core State Standards for Mathematics (CCSS-M)', tags: ['Math', 'Common Core', 'National'] },
-  { id: 3, description: 'GLEAM Framework (Culturally Responsive ELA Learning)', tags: ['ELA', 'GLEAM'] },
   { id: 4, description: 'Tennessee Essential Knowledge and Skills (TEKS) – Mathematics', tags: ['Math', 'Tennessee'] },
 ]
 

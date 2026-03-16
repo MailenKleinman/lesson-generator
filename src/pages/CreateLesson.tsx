@@ -1,15 +1,24 @@
 import {
   Typography, Box, Card, CardContent, TextField, MenuItem,
-  Autocomplete, Chip, Button, Divider,
+  Button, Divider, RadioGroup, FormControlLabel, IconButton,
+  Radio, FormControl, FormLabel, Dialog, DialogTitle,
+  DialogContent, DialogActions, Tooltip, Checkbox, Slider,
+  Switch, FormGroup, InputAdornment,
 } from '@mui/material'
-import { AutoAwesome } from '@mui/icons-material'
-import { useState } from 'react'
+import {
+  FormatBold, FormatItalic, FormatUnderlined, FormatStrikethrough,
+  FormatListBulleted, FormatListNumbered, FormatAlignLeft,
+  FormatAlignCenter, FormatAlignRight, FormatColorText,
+  FormatColorFill, Undo, Redo, AutoAwesome as AutoAwesomeIcon,
+  UploadFile, Tune, History, Publish, Send, Save,
+} from '@mui/icons-material'
+import { useState, useRef } from 'react'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const grades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
-const formats = ['Lesson', 'Activity', 'Problem Set', 'Warm-Up', 'Exit Ticket', 'Assessment']
+const formats = ['Lesson', 'Task', 'Problem Set', 'Warm-Up', 'Assessment']
 
 const domains = [
   'Ratios & Proportional Relationships',
@@ -19,26 +28,82 @@ const domains = [
   'Statistics & Probability',
 ]
 
-const standardOptions = [
-  'NY-7.RP.1 – Compute unit rates associated with ratios of fractions, including ratios of lengths, areas, and other quantities measured in like or different units.',
-  'NY-7.RP.2 – Recognize and represent proportional relationships between quantities.',
-  'NY-7.NS.1 – Apply and extend previous understandings of addition and subtraction to add and subtract rational numbers.',
-  'NY-7.NS.2 – Apply and extend previous understandings of multiplication and division of fractions.',
-  'NY-7.EE.1 – Apply properties of operations to add, subtract, factor, and expand linear expressions with rational coefficients.',
-  'NY-7.EE.2 – Understand that rewriting an expression in different forms in real-world and mathematical problems can reveal and explain how the quantities are related. For example, a + 0.05a and 1.05a are equivalent expressions meaning that "increase by 5%" is the same as "multiply by 1.05."',
-  'NY-7.EE.3 – Solve multi-step real-life and mathematical problems posed with positive and negative rational numbers in any form.',
-  'NY-7.G.1 – Solve problems involving scale drawings of geometric figures.',
-  'NY-7.G.2 – Draw geometric shapes with given conditions, including triangles.',
-  'NY-7.SP.1 – Understand that statistics can be used to gain information about a population by examining a sample of the population.',
-  'NY-7.SP.2 – Use data from a random sample to draw inferences about a population.',
+interface DomainCode { code: string; description: string }
+
+const domainCodeMap: Record<string, DomainCode[]> = {
+  'Ratios & Proportional Relationships': [
+    { code: 'NY-7.RP.1', description: 'Compute unit rates associated with ratios of fractions.' },
+    { code: 'NY-7.RP.2', description: 'Recognize and represent proportional relationships between quantities.' },
+    { code: 'NY-7.RP.3', description: 'Use proportional relationships to solve multi-step ratio and percent problems.' },
+  ],
+  'The Number System': [
+    { code: 'NY-7.NS.1', description: 'Apply and extend previous understandings of addition and subtraction to add and subtract rational numbers.' },
+    { code: 'NY-7.NS.2', description: 'Apply and extend previous understandings of multiplication and division of fractions.' },
+    { code: 'NY-7.NS.3', description: 'Solve real-world and mathematical problems involving the four operations with rational numbers.' },
+  ],
+  'Expressions & Equations': [
+    { code: 'NY-7.EE.1', description: 'Apply properties of operations to add, subtract, factor, and expand linear expressions with rational coefficients.' },
+    { code: 'NY-7.EE.2', description: 'Understand that rewriting an expression in different forms can reveal how quantities are related.' },
+    { code: 'NY-7.EE.3', description: 'Solve multi-step real-life problems posed with positive and negative rational numbers.' },
+    { code: 'NY-7.EE.4', description: 'Use variables to represent quantities and construct equations or inequalities to solve problems.' },
+  ],
+  'Geometry': [
+    { code: 'NY-7.G.1', description: 'Solve problems involving scale drawings of geometric figures.' },
+    { code: 'NY-7.G.2', description: 'Draw geometric shapes with given conditions, including triangles.' },
+    { code: 'NY-7.G.3', description: 'Describe the cross-sections of three-dimensional figures.' },
+    { code: 'NY-7.G.4', description: 'Know and use the formulas for area and circumference of a circle.' },
+    { code: 'NY-7.G.5', description: 'Use facts about supplementary, complementary, vertical, and adjacent angles.' },
+    { code: 'NY-7.G.6', description: 'Solve real-world problems involving area, surface area, and volume.' },
+  ],
+  'Statistics & Probability': [
+    { code: 'NY-7.SP.1', description: 'Understand that statistics can be used to gain information about a population by examining a sample.' },
+    { code: 'NY-7.SP.2', description: 'Use data from a random sample to draw inferences about a population.' },
+    { code: 'NY-7.SP.3', description: 'Informally assess the degree of visual overlap of two numerical data distributions.' },
+    { code: 'NY-7.SP.4', description: 'Use measures of center and variability to compare two populations.' },
+    { code: 'NY-7.SP.5', description: 'Understand that the probability of a chance event is a number between 0 and 1.' },
+    { code: 'NY-7.SP.6', description: 'Approximate the probability of an event by collecting data and observing its long-run frequency.' },
+    { code: 'NY-7.SP.7', description: 'Develop a probability model and use it to find probabilities of events.' },
+    { code: 'NY-7.SP.8', description: 'Find probabilities of compound events using organized lists, tables, and tree diagrams.' },
+  ],
+}
+
+const standardFrameworks = [
+  'New York State Mathematics Learning Standards (NY-MLS)',
+  'Common Core State Standards for Mathematics (CCSS-M)',
+  'Tennessee Essential Knowledge and Skills (TEKS) – Mathematics',
 ]
 
 const topicCategories = ['People', 'Places & Events', 'Culture']
 
+const topicOptionsMap: Record<string, string[]> = {
+  // People
+  'Athletes': ['Michael Jordan', 'Serena Williams', 'Usain Bolt', 'Simone Biles', 'LeBron James', 'Jackie Robinson', 'Muhammad Ali', 'Megan Rapinoe'],
+  'Activists': ['Martin Luther King Jr.', 'Rosa Parks', 'Malcolm X', 'Harriet Tubman', 'Angela Davis', 'John Lewis', 'Fannie Lou Hamer'],
+  'Authors': ['Maya Angelou', 'Langston Hughes', 'Toni Morrison', 'James Baldwin', 'Zora Neale Hurston', 'Walter Dean Myers'],
+  'Characters': ['Luke Cage', 'Black Panther', 'Miles Morales', 'Storm', 'Static Shock', 'Shuri'],
+  'Entertainers': ['Beyoncé', 'Michael Jackson', 'Tupac Shakur', 'Nina Simone', 'Prince', 'Josephine Baker'],
+  'Entrepreneurs': ['Madam C.J. Walker', 'Robert F. Smith', 'Jay-Z', 'Oprah Winfrey', 'Daymond John'],
+  'Inventors': ['Lewis Howard Latimer', 'Garrett Morgan', 'Granville T. Woods', 'Patricia Bath', 'Charles Drew'],
+  'Politicians': ['Barack Obama', 'Shirley Chisholm', 'Kamala Harris', 'John Lewis', 'Thurgood Marshall'],
+  'Scholars': ['W.E.B. Du Bois', 'Frederick Douglass', 'bell hooks', 'Cornel West', 'Henry Louis Gates Jr.'],
+  'Scientists & Mathematicians': ['Katherine Johnson', 'Mae Jemison', 'Neil deGrasse Tyson', 'Hidden Figures', 'Benjamin Banneker', 'Charles Henry Turner'],
+  // Culture
+  'Art': ['Adinkra Symbols', 'Harlem Renaissance', 'African Masks', 'Street Art & Graffiti', 'Quilting Traditions'],
+  'Cuisine': ['Soul Food', 'Caribbean Cuisine', 'West African Dishes', 'Juneteenth Foods', 'Diaspora Cooking'],
+  'Dance': ['Double Dutch', 'Stepping', 'African Traditional Dance', 'Hip-Hop Dance', 'Lindy Hop'],
+  'Film': ['Black Panther', 'Hidden Figures', 'Selma', 'Do the Right Thing', 'Moonlight'],
+  'Music': ['Hip-Hop Origins', 'Jazz History', 'Blues', 'Gospel', 'Afrobeats'],
+  'Traditions & Holidays': ['Kwanzaa', 'Juneteenth', 'Carnival', 'Day of the Dead', 'African New Year'],
+  // Places & Events
+  'African Diaspora': ['Caribbean Islands', 'Brazil', 'New Orleans', 'Harlem', 'South Africa'],
+  'History of Africa': ['Ancient Egypt', 'Mali Empire', 'Kingdom of Kush', 'Great Zimbabwe', 'Timbuktu'],
+  'U.S. Black History': ['Reconstruction Era', 'Civil Rights Movement', 'Harlem Renaissance', 'Great Migration', 'Black Wall Street'],
+}
+
 const subcategoryMap: Record<string, string[]> = {
   'Culture': ['Art', 'Cuisine', 'Dance', 'Film', 'Music', 'Traditions & Holidays'],
   'Places & Events': ['African Diaspora', 'History of Africa', 'U.S. Black History'],
-  'People': [],
+  'People': ['Activists', 'Athletes', 'Authors', 'Characters', 'Entertainers', 'Entrepreneurs', 'Inventors', 'Politicians', 'Scholars', 'Scientists & Mathematicians'],
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -46,16 +111,74 @@ const subcategoryMap: Record<string, string[]> = {
 export default function CreateLesson() {
   const [grade, setGrade] = useState('')
   const [format, setFormat] = useState('')
+  const [standardFramework, setStandardFramework] = useState('')
   const [domain, setDomain] = useState('')
-  const [standards, setStandards] = useState<string[]>([])
+  const [domainCode, setDomainCode] = useState('')
+  const [topicMode, setTopicMode] = useState<'own' | 'recommended'>('recommended')
+  const [customTopic, setCustomTopic] = useState('')
   const [topicCategory, setTopicCategory] = useState('')
   const [topicSubcategory, setTopicSubcategory] = useState('')
+  const [specificTopic, setSpecificTopic] = useState('')
+
+  const editorRef = useRef<HTMLDivElement>(null)
+  const [editorEmpty, setEditorEmpty] = useState(true)
+  const exec = (command: string, value?: string) => {
+    editorRef.current?.focus()
+    document.execCommand(command, false, value)
+  }
+
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+
+  // Classroom information
+  const [studentCount, setStudentCount] = useState('')
+  const [ethnicity, setEthnicity] = useState<string[]>([])
+  const [classroomTraits, setClassroomTraits] = useState<string[]>([])
+  const toggleTrait = (trait: string) =>
+    setClassroomTraits((prev) =>
+      prev.includes(trait) ? prev.filter((t) => t !== trait) : [...prev, trait]
+    )
+  const [classroomContext, setClassroomContext] = useState('')
+
+  // Lesson sections
+  const [selectedSections, setSelectedSections] = useState<string[]>([])
+  const toggleSection = (section: string) =>
+    setSelectedSections((prev) =>
+      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
+    )
+  // Practice configuration
+  const [exerciseCount, setExerciseCount] = useState(5)
+  const [includeGraphics, setIncludeGraphics] = useState(false)
+  const [applyGleam, setApplyGleam] = useState(false)
+  const [difficulty, setDifficulty] = useState('Medium')
+  const [exerciseTypes, setExerciseTypes] = useState<string[]>([])
+  const toggleExerciseType = (type: string) =>
+    setExerciseTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    )
+  const [scaffolding, setScaffolding] = useState(false)
+  const [realWorldContext, setRealWorldContext] = useState(false)
+
+  const handleFrameworkChange = (value: string) => {
+    setStandardFramework(value)
+    setDomain('')
+    setDomainCode('')
+  }
 
   const subcategories = topicCategory ? subcategoryMap[topicCategory] ?? [] : []
+  const specificTopics = topicSubcategory ? topicOptionsMap[topicSubcategory] ?? [] : []
 
   const handleCategoryChange = (value: string) => {
     setTopicCategory(value)
     setTopicSubcategory('')
+    setSpecificTopic('')
+  }
+
+  const handleTopicModeChange = (value: 'own' | 'recommended') => {
+    setTopicMode(value)
+    setCustomTopic('')
+    setTopicCategory('')
+    setTopicSubcategory('')
+    setSpecificTopic('')
   }
 
   return (
@@ -63,29 +186,36 @@ export default function CreateLesson() {
       {/* Header */}
       <Box mb={4}>
         <Typography variant="h4" fontWeight={600} gutterBottom>Create New Tool</Typography>
-        <Typography variant="body1" color="text.secondary">
-          Configure your lesson settings and generate a culturally relevant math tool.
-        </Typography>
       </Box>
 
       {/* Two-column layout */}
-      <Box display="grid" gridTemplateColumns="1fr 1fr" gap={3} alignItems="start">
-
-        {/* Left card — reserved for future functionality */}
-        <Card variant="outlined" sx={{ borderRadius: 2, minHeight: 520 }}>
-          <CardContent sx={{ height: '100%' }} />
-        </Card>
+      <Box display="grid" gridTemplateColumns="1fr 2fr" gap={3} alignItems="stretch">
 
         {/* Right card — configuration form */}
-        <Card variant="outlined" sx={{ borderRadius: 2 }}>
+        <Card variant="outlined" sx={{ borderRadius: 2, height: '100%' }}>
           <CardContent>
-            <Typography fontWeight={600} mb={0.5}>Lesson Configuration</Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>
-              Fill in the details below to generate your tool.
-            </Typography>
+            <Typography fontWeight={600} mb={3}>Tool Configuration</Typography>
 
             <Box display="flex" flexDirection="column" gap={2.5}>
 
+
+              <Box
+                component="label"
+                sx={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: 0.25, py: 2.5, px: 2, cursor: 'pointer', borderRadius: 2,
+                  border: '2px dashed', borderColor: '#b39ddb',
+                  color: '#6f52dd', bgcolor: '#faf8ff',
+                  transition: '0.15s',
+                  '&:hover': { borderColor: '#6f52dd', bgcolor: '#ede9fb' },
+                }}
+              >
+                <UploadFile sx={{ fontSize: 24 }} />
+                <Typography variant="body2" fontWeight={500}>Adapt existing tool (optional)</Typography>
+                <input type="file" hidden multiple accept=".pdf,.doc,.docx,.txt" />
+              </Box>
+
+              <Divider />
               {/* Grade Level */}
               <TextField
                 select
@@ -100,104 +230,163 @@ export default function CreateLesson() {
                 ))}
               </TextField>
 
-              {/* Format */}
+              {/* Standard Framework */}
               <TextField
                 select
-                label="Format"
-                value={format}
-                onChange={(e) => setFormat(e.target.value)}
+                label="Standard"
+                value={standardFramework}
+                onChange={(e) => handleFrameworkChange(e.target.value)}
                 fullWidth
                 size="small"
               >
-                {formats.map((f) => (
+                {standardFrameworks.map((f) => (
                   <MenuItem key={f} value={f}>{f}</MenuItem>
                 ))}
               </TextField>
 
-              {/* Domain */}
-              <TextField
-                select
-                label="Domain"
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                fullWidth
-                size="small"
-              >
-                {domains.map((d) => (
-                  <MenuItem key={d} value={d}>{d}</MenuItem>
-                ))}
-              </TextField>
+              {/* Domain — shown after framework is selected */}
+              {standardFramework && (
+                <TextField
+                  select
+                  label="Domain"
+                  value={domain}
+                  onChange={(e) => { setDomain(e.target.value); setDomainCode('') }}
+                  fullWidth
+                  size="small"
+                >
+                  {domains.map((d) => (
+                    <MenuItem key={d} value={d}>{d}</MenuItem>
+                  ))}
+                </TextField>
+              )}
 
-              {/* Standards */}
-              <Autocomplete
-                multiple
-                options={standardOptions}
-                value={standards}
-                onChange={(_, value) => setStandards(value)}
-                disableCloseOnSelect
-                size="small"
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => {
-                    const code = option.split(' – ')[0]
-                    return (
-                      <Chip
-                        label={code}
-                        size="small"
-                        {...getTagProps({ index })}
-                        sx={{ bgcolor: '#ede9fb', color: '#6f52dd', fontWeight: 600 }}
-                      />
-                    )
-                  })
-                }
-                renderOption={(props, option) => {
-                  const [code, ...rest] = option.split(' – ')
-                  return (
-                    <Box component="li" {...props} sx={{ flexDirection: 'column', alignItems: 'flex-start !important', py: 1.5 }}>
-                      <Typography variant="body2" fontWeight={600} color="#6f52dd">{code}</Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.3 }}>
-                        {rest.join(' – ')}
-                      </Typography>
-                    </Box>
-                  )
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Standards" placeholder={standards.length === 0 ? 'Search or select standards…' : ''} />
-                )}
-              />
+              {/* Domain Code — shown after domain is selected */}
+              {domain && (
+                <TextField
+                  select
+                  label="Domain Code"
+                  value={domainCode}
+                  onChange={(e) => setDomainCode(e.target.value)}
+                  fullWidth
+                  size="small"
+                  SelectProps={{ renderValue: (value) => value as string }}
+                >
+                  {(domainCodeMap[domain] ?? []).map(({ code, description }) => (
+                    <MenuItem key={code} value={code}>
+                      <Box>
+                        <Typography variant="body2" fontWeight={600} color="#6f52dd">{code}</Typography>
+                        <Typography variant="caption" color="text.secondary">{description}</Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
 
               <Divider />
 
-              {/* Topic Category */}
-              <TextField
-                select
-                label="Topic Category"
-                value={topicCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                fullWidth
-                size="small"
-              >
-                {topicCategories.map((c) => (
-                  <MenuItem key={c} value={c}>{c}</MenuItem>
-                ))}
-              </TextField>
+              {/* Topic Mode */}
+              <FormControl>
+                <FormLabel sx={{ fontSize: 13, fontWeight: 600, color: 'text.primary', mb: 0.5 }}>
+                  Topic
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={topicMode}
+                  onChange={(e) => handleTopicModeChange(e.target.value as 'own' | 'recommended')}
+                >
+                  <FormControlLabel
+                    value="recommended"
+                    control={<Radio size="small" sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }} />}
+                    label={<Typography variant="body2">Select Recommended</Typography>}
+                  />
 
-              {/* Topic Subcategory */}
-              <TextField
-                select
-                label="Topic Subcategory"
-                value={topicSubcategory}
-                onChange={(e) => setTopicSubcategory(e.target.value)}
+                  <FormControlLabel
+                    value="own"
+                    control={<Radio size="small" sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }} />}
+                    label={<Typography variant="body2">Write My Own</Typography>}
+                  />
+                </RadioGroup>
+              </FormControl>
+
+              {/* Write My Own */}
+              {topicMode === 'own' && (
+                <TextField
+                  label="Your Topic"
+                  placeholder="e.g. Serena Williams"
+                  value={customTopic}
+                  onChange={(e) => setCustomTopic(e.target.value)}
+                  fullWidth
+                  size="small"
+                  multiline
+                  rows={2}
+                />
+              )}
+
+              {/* Select Recommended */}
+              {topicMode === 'recommended' && (
+                <>
+                  <TextField
+                    select
+                    label="Topic Category"
+                    value={topicCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    fullWidth
+                    size="small"
+                  >
+                    {topicCategories.map((c) => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </TextField>
+
+                  {topicCategory && subcategories.length > 0 && (
+                    <TextField
+                      select
+                      label="Topic Subcategory"
+                      value={topicSubcategory}
+                      onChange={(e) => { setTopicSubcategory(e.target.value); setSpecificTopic('') }}
+                      fullWidth
+                      size="small"
+                    >
+                      {subcategories.map((s) => (
+                        <MenuItem key={s} value={s}>{s}</MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+
+                  {topicSubcategory && specificTopics.length > 0 && (
+                    <TextField
+                      select
+                      label="Topic"
+                      value={specificTopic}
+                      onChange={(e) => setSpecificTopic(e.target.value)}
+                      fullWidth
+                      size="small"
+                    >
+                      {specificTopics.map((t) => (
+                        <MenuItem key={t} value={t}>{t}</MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                </>
+              )}
+
+              <Divider />
+              {/* Advanced Settings */}
+              <Button
+                variant="outlined"
+                startIcon={<Tune fontSize="small" />}
+                onClick={() => setAdvancedOpen(true)}
                 fullWidth
-                size="small"
-                disabled={!topicCategory || subcategories.length === 0}
-                helperText={topicCategory && subcategories.length === 0 ? 'No subcategories available for this category.' : ''}
+                sx={{
+                  borderColor: '#6f52dd', color: '#6f52dd',
+                  '&:hover': { bgcolor: '#ede9fb', borderColor: '#6f52dd' },
+                }}
               >
-                {subcategories.map((s) => (
-                  <MenuItem key={s} value={s}>{s}</MenuItem>
-                ))}
-              </TextField>
+                Advanced Settings
+              </Button>
 
             </Box>
+
 
             {/* Generate button */}
             <Box mt={4}>
@@ -205,7 +394,7 @@ export default function CreateLesson() {
                 variant="contained"
                 fullWidth
                 size="large"
-                startIcon={<AutoAwesome />}
+                startIcon={<AutoAwesomeIcon />}
                 sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' }, borderRadius: 2, py: 1.2 }}
               >
                 Generate Tool
@@ -214,7 +403,316 @@ export default function CreateLesson() {
           </CardContent>
         </Card>
 
+        {/* Right card — lesson content editor */}
+        <Card variant="outlined" sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', minHeight: 580 }}>
+
+          {/* Toolbar */}
+          <Box
+            sx={{
+              display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+              px: 1.5, py: 0.75, borderBottom: '1px solid', borderColor: 'divider', gap: 1,
+            }}
+          >
+            <Button size="small" variant="outlined" startIcon={<History fontSize="small" />}
+              sx={{ borderColor: 'divider', color: 'text.secondary', '&:hover': { borderColor: '#6f52dd', color: '#6f52dd' } }}>
+              Versions
+            </Button>
+            <Button size="small" variant="outlined" startIcon={<Save fontSize="small" />}
+              sx={{ borderColor: 'divider', color: 'text.secondary', '&:hover': { borderColor: '#6f52dd', color: '#6f52dd' } }}>
+              Save Draft
+            </Button>
+            <Button size="small" variant="contained" startIcon={<Publish fontSize="small" />}
+              sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' } }}>
+              Publish
+            </Button>
+          </Box>
+
+          {/* Editable content area */}
+          <Box sx={{ flexGrow: 1, position: 'relative' }}>
+
+            {/* Empty state placeholder */}
+            {editorEmpty && (
+              <Box sx={{
+                position: 'absolute', inset: 0,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                pointerEvents: 'none', gap: 1,
+              }}>
+                <AutoAwesomeIcon sx={{ fontSize: 32, color: '#d0c4f5' }} />
+                <Typography variant="body2" color="text.disabled" textAlign="center" maxWidth={260}>
+                  Complete the form and click <strong>Generate Tool</strong> to create the first version of your lesson.
+                </Typography>
+              </Box>
+            )}
+
+            <Box
+              ref={editorRef}
+              sx={{
+                height: '100%', minHeight: 480, p: 3,
+                fontSize: 15, lineHeight: 1.7, color: 'text.primary',
+                fontFamily: 'Poppins, sans-serif',
+                '& h2': { fontSize: '1.4rem', fontWeight: 700, mb: 1, mt: 2 },
+                '& h3': { fontSize: '1.15rem', fontWeight: 600, mb: 0.5, mt: 1.5 },
+                '& ul, & ol': { pl: 3 },
+                '& p': { my: 0.5 },
+              }}
+            />
+          </Box>
+
+          {/* AI chat input */}
+          <Box
+            sx={{
+              borderTop: '1px solid', borderColor: 'divider',
+              px: 2, py: 1.5, display: 'flex', gap: 1, alignItems: 'center',
+            }}
+          >
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Ask AI to revise, expand, or improve the lesson…"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AutoAwesomeIcon sx={{ fontSize: 16, color: '#6f52dd' }} />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 3, bgcolor: '#fafafa' },
+              }}
+            />
+            <IconButton
+              sx={{
+                bgcolor: '#6f52dd', color: '#fff', borderRadius: 2,
+                '&:hover': { bgcolor: '#5a3fc0' },
+              }}
+            >
+              <Send fontSize="small" />
+            </IconButton>
+          </Box>
+        </Card>
+
       </Box>
+
+      {/* Advanced Settings Modal */}
+      <Dialog open={advancedOpen} onClose={() => setAdvancedOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 600 }}>
+          Advanced Settings
+          <Typography variant="body2" color="text.secondary" fontWeight={400} mt={0.5}>
+            All fields are optional. Use them to further customize the generated lesson.
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+
+          {/* Lesson Sections */}
+          <Box>
+            <Typography variant="body2" fontWeight={600} mb={0.5}>Tool Sections</Typography>
+            <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
+              Select the sections to include in the generated lesson.
+            </Typography>
+            <FormGroup>
+              {['Teacher Preparation', 'Learning Overview', 'Objective and Learning Outcomes', 'Story/Narrative', 'Math Tasks', 'End Discussion'].map((section) => (
+                <FormControlLabel
+                  key={section}
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={selectedSections.includes(section)}
+                      onChange={() => toggleSection(section)}
+                      sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }}
+                    />
+                  }
+                  label={<Typography variant="body2">{section}</Typography>}
+                />
+              ))}
+            </FormGroup>
+          </Box>
+
+          <Divider />
+
+          {/* Practice Configuration */}
+          <Box>
+            <Box mb={0.5}>
+              <Typography variant="body2" fontWeight={600} marginBottom={3}>Exercise Configuration</Typography>
+            </Box>
+
+            <Box display="flex" flexDirection="column" gap={2.5}>
+
+              {/* Number of exercises */}
+              <Box>
+                <Box display="flex" justifyContent="space-between" mb={0.5}>
+                  <Typography variant="body2">Number of Exercises</Typography>
+                  <Typography variant="body2" fontWeight={600} color="#6f52dd">{exerciseCount}</Typography>
+                </Box>
+                <Slider
+                  value={exerciseCount}
+                  onChange={(_, v) => setExerciseCount(v as number)}
+                  min={1} max={20} step={1}
+                  sx={{ color: '#6f52dd' }}
+                />
+              </Box>
+
+              {/* Exercise types */}
+              <Box>
+                <Typography variant="body2" mb={1}>Type of Exercises</Typography>
+                <FormGroup>
+                  {['Word Problems', 'Equations', 'Real-World Problems', 'Multiple Choice', 'Error Analysis', 'Open Response'].map((type) => (
+                    <FormControlLabel
+                      key={type}
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={exerciseTypes.includes(type)}
+                          onChange={() => toggleExerciseType(type)}
+                          sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }}
+                        />
+                      }
+                      label={<Typography variant="body2">{type}</Typography>}
+                    />
+                  ))}
+                </FormGroup>
+              </Box>
+
+              <Divider />
+
+              {/* Toggles */}
+              <FormGroup>
+                <FormControlLabel
+                  control={<Switch checked={includeGraphics} onChange={(e) => setIncludeGraphics(e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#6f52dd' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6f52dd' } }} />}
+                  label={
+                    <Box>
+                      <Typography variant="body2">Include Graphics & Visual Representations</Typography>
+                      <Typography variant="caption" color="text.secondary">Add diagrams, number lines, or charts to exercises.</Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: 'flex-start', mb: 1.5 }}
+                />
+                <FormControlLabel
+                  control={<Switch checked={applyGleam} onChange={(e) => setApplyGleam(e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#6f52dd' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6f52dd' } }} />}
+                  label={
+                    <Box>
+                      <Typography variant="body2">Apply GLEAM Framework</Typography>
+                      <Typography variant="caption" color="text.secondary">Embed culturally responsive elements throughout exercises.</Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: 'flex-start', mb: 1.5 }}
+                />
+                <FormControlLabel
+                  control={<Switch checked={scaffolding} onChange={(e) => setScaffolding(e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#6f52dd' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6f52dd' } }} />}
+                  label={
+                    <Box>
+                      <Typography variant="body2">Include Scaffolding</Typography>
+                      <Typography variant="caption" color="text.secondary">Add hints, sentence starters, or worked examples.</Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: 'flex-start', mb: 1.5 }}
+                />
+              </FormGroup>
+
+            </Box>
+          </Box>
+
+          <Divider />
+
+          {/* Classroom Information */}
+          <Box>
+            <Typography variant="body2" fontWeight={600} mb={0.5}>Classroom Information</Typography>
+            <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+              Help us tailor the lesson to your specific classroom context.
+            </Typography>
+
+            <Box display="flex" flexDirection="column" gap={2}>
+
+              <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
+                <TextField
+                  label="Number of Students"
+                  type="number"
+                  value={studentCount}
+                  onChange={(e) => setStudentCount(e.target.value)}
+                  size="small"
+                  inputProps={{ min: 1, max: 100 }}
+                />
+                <TextField
+                  select
+                  label="Ethnicity"
+                  value={ethnicity}
+                  onChange={(e) => setEthnicity(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value as string[])}
+                  size="small"
+                  SelectProps={{
+                    multiple: true,
+                    renderValue: (selected) => (selected as string[]).join(', '),
+                  }}
+                >
+                  {[
+                    'Black / African American',
+                    'Hispanic / Latino',
+                    'Asian / Pacific Islander',
+                    'Native American / Indigenous',
+                    'White / European',
+                    'Middle Eastern / North African',
+                    'Multiracial / Mixed',
+                    'Other',
+                  ].map((e) => (
+                    <MenuItem key={e} value={e}>
+                      <Checkbox size="small" checked={ethnicity.includes(e)}
+                        sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' }, p: 0.5 }} />
+                      <Typography variant="body2">{e}</Typography>
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
+              <Box>
+                <Typography variant="body2" mb={1}>Classroom Characteristics</Typography>
+                <FormGroup>
+                  {[
+                    'English Language Learners',
+                    'Mixed Ability Levels',
+                    'Special Education Needs',
+                    'Gifted & Talented',
+                    'Title I School',
+                    'Multilingual Classroom',
+                    'High Absenteeism',
+                    'Trauma-Informed Needs',
+                  ].map((trait) => (
+                    <FormControlLabel
+                      key={trait}
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={classroomTraits.includes(trait)}
+                          onChange={() => toggleTrait(trait)}
+                          sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }}
+                        />
+                      }
+                      label={<Typography variant="body2">{trait}</Typography>}
+                    />
+                  ))}
+                </FormGroup>
+              </Box>
+
+              <TextField
+                label="Additional Context"
+                placeholder="Describe anything else about your class that might help personalize the lesson…"
+                value={classroomContext}
+                onChange={(e) => setClassroomContext(e.target.value)}
+                size="small"
+                multiline
+                rows={3}
+                fullWidth
+              />
+
+            </Box>
+          </Box>
+
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setAdvancedOpen(false)} variant="contained"
+            sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' } }}>
+            Done
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </Box>
   )
 }

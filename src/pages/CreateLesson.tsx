@@ -140,7 +140,10 @@ export default function CreateLesson() {
   const [classroomContext, setClassroomContext] = useState('')
 
   // Lesson sections
-  const [selectedSections, setSelectedSections] = useState<string[]>([])
+  const [selectedSections, setSelectedSections] = useState<string[]>([
+    'Teacher Preparation', 'Learning Overview', 'Objective and Learning Outcomes',
+    'Story/Narrative', 'Math Tasks', 'End Discussion',
+  ])
   const toggleSection = (section: string) =>
     setSelectedSections((prev) =>
       prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
@@ -150,7 +153,7 @@ export default function CreateLesson() {
   const [includeGraphics, setIncludeGraphics] = useState(false)
   const [applyGleam, setApplyGleam] = useState(false)
   const [difficulty, setDifficulty] = useState('Medium')
-  const [exerciseTypes, setExerciseTypes] = useState<string[]>([])
+  const [exerciseTypes, setExerciseTypes] = useState<string[]>(['Word Problems'])
   const toggleExerciseType = (type: string) =>
     setExerciseTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
@@ -166,6 +169,11 @@ export default function CreateLesson() {
 
   const subcategories = topicCategory ? subcategoryMap[topicCategory] ?? [] : []
   const specificTopics = topicSubcategory ? topicOptionsMap[topicSubcategory] ?? [] : []
+
+  const canGenerate = Boolean(
+    standardFramework && grade && domain && domainCode &&
+    (topicMode === 'own' ? customTopic.trim() : topicCategory && topicSubcategory && specificTopic)
+  )
 
   const handleCategoryChange = (value: string) => {
     setTopicCategory(value)
@@ -198,38 +206,6 @@ export default function CreateLesson() {
 
             <Box display="flex" flexDirection="column" gap={2.5}>
 
-
-              <Box
-                component="label"
-                sx={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  gap: 0.25, py: 2.5, px: 2, cursor: 'pointer', borderRadius: 2,
-                  border: '2px dashed', borderColor: '#b39ddb',
-                  color: '#6f52dd', bgcolor: '#faf8ff',
-                  transition: '0.15s',
-                  '&:hover': { borderColor: '#6f52dd', bgcolor: '#ede9fb' },
-                }}
-              >
-                <UploadFile sx={{ fontSize: 24 }} />
-                <Typography variant="body2" fontWeight={500}>Adapt existing tool (optional)</Typography>
-                <input type="file" hidden multiple accept=".pdf,.doc,.docx,.txt" />
-              </Box>
-
-              <Divider />
-              {/* Grade Level */}
-              <TextField
-                select
-                label="Grade Level"
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                fullWidth
-                size="small"
-              >
-                {grades.map((g) => (
-                  <MenuItem key={g} value={g}>Grade {g}</MenuItem>
-                ))}
-              </TextField>
-
               {/* Standard Framework */}
               <TextField
                 select
@@ -244,43 +220,56 @@ export default function CreateLesson() {
                 ))}
               </TextField>
 
-              {/* Domain — shown after framework is selected */}
-              {standardFramework && (
-                <TextField
-                  select
-                  label="Domain"
-                  value={domain}
-                  onChange={(e) => { setDomain(e.target.value); setDomainCode('') }}
-                  fullWidth
-                  size="small"
-                >
-                  {domains.map((d) => (
-                    <MenuItem key={d} value={d}>{d}</MenuItem>
-                  ))}
-                </TextField>
-              )}
+              {/* Grade Level — always visible, enabled after standard is selected */}
+              <TextField
+                select
+                label="Grade Level"
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+                fullWidth
+                size="small"
+                disabled={!standardFramework}
+              >
+                {grades.map((g) => (
+                  <MenuItem key={g} value={g}>Grade {g}</MenuItem>
+                ))}
+              </TextField>
 
-              {/* Domain Code — shown after domain is selected */}
-              {domain && (
-                <TextField
-                  select
-                  label="Domain Code"
-                  value={domainCode}
-                  onChange={(e) => setDomainCode(e.target.value)}
-                  fullWidth
-                  size="small"
-                  SelectProps={{ renderValue: (value) => value as string }}
-                >
-                  {(domainCodeMap[domain] ?? []).map(({ code, description }) => (
-                    <MenuItem key={code} value={code}>
-                      <Box>
-                        <Typography variant="body2" fontWeight={600} color="#6f52dd">{code}</Typography>
-                        <Typography variant="caption" color="text.secondary">{description}</Typography>
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
+              {/* Domain — always visible, enabled after framework is selected */}
+              <TextField
+                select
+                label="Domain"
+                value={domain}
+                onChange={(e) => { setDomain(e.target.value); setDomainCode('') }}
+                fullWidth
+                size="small"
+                disabled={!grade}
+              >
+                {domains.map((d) => (
+                  <MenuItem key={d} value={d}>{d}</MenuItem>
+                ))}
+              </TextField>
+
+              {/* Domain Code — always visible, enabled after domain is selected */}
+              <TextField
+                select
+                label="Domain Code"
+                value={domainCode}
+                onChange={(e) => setDomainCode(e.target.value)}
+                fullWidth
+                size="small"
+                disabled={!domain}
+                SelectProps={{ renderValue: (value) => value as string }}
+              >
+                {(domainCodeMap[domain] ?? []).map(({ code, description }) => (
+                  <MenuItem key={code} value={code}>
+                    <Box>
+                      <Typography variant="body2" fontWeight={600} color="#6f52dd">{code}</Typography>
+                      <Typography variant="caption" color="text.secondary">{description}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
 
               <Divider />
 
@@ -338,35 +327,35 @@ export default function CreateLesson() {
                     ))}
                   </TextField>
 
-                  {topicCategory && subcategories.length > 0 && (
-                    <TextField
-                      select
-                      label="Topic Subcategory"
-                      value={topicSubcategory}
-                      onChange={(e) => { setTopicSubcategory(e.target.value); setSpecificTopic('') }}
-                      fullWidth
-                      size="small"
-                    >
-                      {subcategories.map((s) => (
-                        <MenuItem key={s} value={s}>{s}</MenuItem>
-                      ))}
-                    </TextField>
-                  )}
+                  {/* Topic Subcategory — always visible, enabled after category is selected */}
+                  <TextField
+                    select
+                    label="Topic Subcategory"
+                    value={topicSubcategory}
+                    onChange={(e) => { setTopicSubcategory(e.target.value); setSpecificTopic('') }}
+                    fullWidth
+                    size="small"
+                    disabled={!topicCategory}
+                  >
+                    {subcategories.map((s) => (
+                      <MenuItem key={s} value={s}>{s}</MenuItem>
+                    ))}
+                  </TextField>
 
-                  {topicSubcategory && specificTopics.length > 0 && (
-                    <TextField
-                      select
-                      label="Topic"
-                      value={specificTopic}
-                      onChange={(e) => setSpecificTopic(e.target.value)}
-                      fullWidth
-                      size="small"
-                    >
-                      {specificTopics.map((t) => (
-                        <MenuItem key={t} value={t}>{t}</MenuItem>
-                      ))}
-                    </TextField>
-                  )}
+                  {/* Specific Topic — always visible, enabled after subcategory is selected */}
+                  <TextField
+                    select
+                    label="Topic"
+                    value={specificTopic}
+                    onChange={(e) => setSpecificTopic(e.target.value)}
+                    fullWidth
+                    size="small"
+                    disabled={!topicSubcategory}
+                  >
+                    {specificTopics.map((t) => (
+                      <MenuItem key={t} value={t}>{t}</MenuItem>
+                    ))}
+                  </TextField>
                 </>
               )}
 
@@ -384,6 +373,22 @@ export default function CreateLesson() {
               >
                 Advanced Settings
               </Button>
+              
+              <Box
+                component="label"
+                sx={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: 0.25, py: 2.5, px: 2, cursor: 'pointer', borderRadius: 2,
+                  border: '2px dashed', borderColor: '#b39ddb',
+                  color: '#6f52dd', bgcolor: '#faf8ff',
+                  transition: '0.15s',
+                  '&:hover': { borderColor: '#6f52dd', bgcolor: '#ede9fb' },
+                }}
+              >
+                <UploadFile sx={{ fontSize: 24 }} />
+                <Typography variant="body2" fontWeight={500}>Adapt existing tool (optional)</Typography>
+                <input type="file" hidden multiple accept=".pdf,.doc,.docx,.txt" />
+              </Box>
 
             </Box>
 
@@ -395,6 +400,7 @@ export default function CreateLesson() {
                 fullWidth
                 size="large"
                 startIcon={<AutoAwesomeIcon />}
+                disabled={!canGenerate}
                 sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' }, borderRadius: 2, py: 1.2 }}
               >
                 Generate Tool
@@ -439,7 +445,7 @@ export default function CreateLesson() {
               }}>
                 <AutoAwesomeIcon sx={{ fontSize: 32, color: '#d0c4f5' }} />
                 <Typography variant="body2" color="text.disabled" textAlign="center" maxWidth={260}>
-                  Complete the form and click <strong>Generate Tool</strong> to create the first version of your lesson.
+                  Complete the form and click <strong>Generate Tool</strong> to create the first version of your tool.
                 </Typography>
               </Box>
             )}
@@ -668,10 +674,7 @@ export default function CreateLesson() {
                     'Mixed Ability Levels',
                     'Special Education Needs',
                     'Gifted & Talented',
-                    'Title I School',
                     'Multilingual Classroom',
-                    'High Absenteeism',
-                    'Trauma-Informed Needs',
                   ].map((trait) => (
                     <FormControlLabel
                       key={trait}

@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import {
   Edit, Delete, Star, Search, Download, Folder as FolderIcon,
-  ArrowBack, CreateNewFolder, DriveFileMove,
+  ArrowBack, CreateNewFolder, DriveFileMove, FilterListOff,
 } from '@mui/icons-material'
 import { useState } from 'react'
 
@@ -77,6 +77,9 @@ function FolderGrid({
   const [filterGrade, setFilterGrade] = useState('All')
   const [filterSubject, setFilterSubject] = useState('All')
   const [filterDate, setFilterDate] = useState('')
+
+  const isFiltered = search !== '' || filterStatus !== 'All' || filterGrade !== 'All' || filterSubject !== 'All' || filterDate !== ''
+  const clearFilters = () => { setSearch(''); setFilterStatus('All'); setFilterGrade('All'); setFilterSubject('All'); setFilterDate('') }
 
   const unorganized = lessons
     .filter((l) => l.folderId === null)
@@ -209,7 +212,13 @@ function FolderGrid({
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
+            inputProps={{ sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } } }}
           />
+          {isFiltered && (
+            <Button size="small" startIcon={<FilterListOff fontSize="small" />} onClick={clearFilters} sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+              Clear filters
+            </Button>
+          )}
         </Box>
 
         <TableContainer component={Paper} variant="outlined">
@@ -331,6 +340,9 @@ function FolderDetail({ folderName, lessons, onBack, onDeleteLesson }: FolderDet
   const [filterSubject, setFilterSubject] = useState('All')
   const [filterDate, setFilterDate] = useState('')
 
+  const isFiltered = search !== '' || filterStatus !== 'All' || filterGrade !== 'All' || filterSubject !== 'All' || filterDate !== ''
+  const clearFilters = () => { setSearch(''); setFilterStatus('All'); setFilterGrade('All'); setFilterSubject('All'); setFilterDate('') }
+
   const filtered = lessons.filter((l) => {
     if (search && !l.topic.toLowerCase().includes(search.toLowerCase())) return false
     if (filterStatus !== 'All' && l.status !== filterStatus) return false
@@ -394,7 +406,13 @@ function FolderDetail({ folderName, lessons, onBack, onDeleteLesson }: FolderDet
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          inputProps={{ sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } } }}
         />
+        {isFiltered && (
+          <Button size="small" startIcon={<FilterListOff fontSize="small" />} onClick={clearFilters} sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+            Clear filters
+          </Button>
+        )}
       </Box>
 
       <TableContainer component={Paper}>

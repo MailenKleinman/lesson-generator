@@ -10,6 +10,8 @@ import Support from './pages/Support'
 import AddStandards from './pages/AddStandards'
 import DataManagement from './pages/DataManagement'
 import UsersManagement from './pages/UsersManagement'
+import TopicManagement from './pages/TopicManagement'
+import SourceManagement from './pages/SourceManagement'
 
 function renderPage(page: Page) {
   switch (page) {
@@ -22,8 +24,8 @@ function renderPage(page: Page) {
     case 'addStandards': return <AddStandards />
     case 'dataManagement': return <DataManagement />
     case 'usersManagement': return <UsersManagement />
-    case 'contentEditor': return <Box sx={{ p: 2 }}><Typography variant="h4" fontWeight={600}>Source Management</Typography></Box>
-    case 'topicManagement': return <Box><Typography variant="h4" fontWeight={600}>Topic Management</Typography></Box>
+    case 'contentEditor': return <SourceManagement />
+    case 'topicManagement': return <TopicManagement />
   }
 }
 

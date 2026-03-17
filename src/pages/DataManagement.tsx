@@ -22,11 +22,8 @@ const exports = [
 export default function DataManagement() {
   return (
     <Box>
-      <Typography variant="h4" gutterBottom fontWeight={600}>
+      <Typography variant="h4" gutterBottom fontWeight={600} marginBottom={4}>
         Data Management
-      </Typography>
-      <Typography variant="body1" color="text.secondary" mb={3}>
-        Export, import, or delete application data.
       </Typography>
 
       <Stack spacing={3} maxWidth={600}>

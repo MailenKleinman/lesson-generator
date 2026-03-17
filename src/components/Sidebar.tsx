@@ -63,8 +63,8 @@ const ADMIN_ITEMS: NavItem[] = [
   { id: 'addStandards', label: 'Standards', icon: <Rule /> },
   { id: 'contentEditor', label: 'Sources', icon: <LibraryBooks /> },
   { id: 'topicManagement', label: 'Topics', icon: <Topic /> },
-  { id: 'dataManagement', label: 'Data', icon: <Storage /> },
   { id: 'usersManagement', label: 'Users', icon: <ManageAccounts /> },
+  { id: 'dataManagement', label: 'Data', icon: <Storage /> },
 ]
 
 export const SIDEBAR_EXPANDED = 240
@@ -140,7 +140,7 @@ export default function Sidebar({ open, activePage, onToggle, onNavigate }: Side
           }),
         '& .MuiDrawer-paper': {
           width,
-          overflowX: 'hidden',
+          overflow: 'hidden',
           transition: (theme) =>
             theme.transitions.create('width', {
               easing: theme.transitions.easing.sharp,
@@ -174,7 +174,7 @@ export default function Sidebar({ open, activePage, onToggle, onNavigate }: Side
       <Divider />
 
       {/* Main nav */}
-      <List sx={{ flexGrow: 1, pt: 1, overflowY: 'auto' }}>
+      <List sx={{ flexGrow: 1, pt: 1, overflow: 'hidden' }}>
         {MAIN_ITEMS.map(renderItem)}
 
         <Divider sx={{ my: 1 }} />

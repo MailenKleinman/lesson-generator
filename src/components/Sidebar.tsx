@@ -21,11 +21,12 @@ import {
   Rule,
   Storage,
   ManageAccounts,
-  LibraryBooks,
+  School,
   ChevronLeft,
   ChevronRight,
   Logout,
   Topic,
+  Calculate,
 } from '@mui/icons-material'
 
 export type Page =
@@ -41,6 +42,7 @@ export type Page =
   | 'usersManagement'
   | 'contentEditor'
   | 'topicManagement'
+  | 'mathTemplates'
 
 interface NavItem {
   id: Page
@@ -62,7 +64,8 @@ const SUPPORT_ITEMS: NavItem[] = [
 
 const ADMIN_ITEMS: NavItem[] = [
   { id: 'addStandards', label: 'Standards', icon: <Rule /> },
-  { id: 'contentEditor', label: 'Sources', icon: <LibraryBooks /> },
+  { id: 'mathTemplates', label: 'Math Templates', icon: <Calculate /> },
+  { id: 'contentEditor', label: 'Sources', icon: <School /> },
   { id: 'topicManagement', label: 'Topics', icon: <Topic /> },
   { id: 'usersManagement', label: 'Users', icon: <ManageAccounts /> },
   { id: 'dataManagement', label: 'Data', icon: <Storage /> },

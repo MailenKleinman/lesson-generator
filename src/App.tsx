@@ -13,6 +13,7 @@ import UsersManagement from './pages/UsersManagement'
 import TopicManagement from './pages/TopicManagement'
 import SourceManagement from './pages/SourceManagement'
 import EditStandard from './pages/EditStandard'
+import MathTemplates from './pages/MathTemplates'
 
 export default function App() {
   const theme = useTheme()
@@ -48,6 +49,7 @@ export default function App() {
       case 'usersManagement': return <UsersManagement />
       case 'contentEditor': return <SourceManagement />
       case 'topicManagement': return <TopicManagement />
+      case 'mathTemplates': return <MathTemplates />
     }
   }
 

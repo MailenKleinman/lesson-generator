@@ -19,6 +19,12 @@ const theme = createTheme({
         'html, body': {
           overflowX: 'hidden',
         },
+        '*, *::before, *::after': {
+          '&:focus:not(:focus-visible)': {
+            outline: 'none !important',
+            boxShadow: 'none !important',
+          },
+        },
       },
     },
   },

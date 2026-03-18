@@ -6,13 +6,10 @@ import {
   Select, FormControl, InputLabel,
 } from '@mui/material'
 import {
-  Add, Edit, Delete, Search, FilterListOff, LinkOutlined,
-  PictureAsPdf, Description, Article, Folder as FolderIcon,
-  InsertDriveFile, CreateNewFolder, DriveFileMove, ChevronRight,
+  Edit, Delete, Search, FilterListOff, Folder as FolderIcon,
+  InsertDriveFile, CreateNewFolder, DriveFileMove, ChevronRight, Add,
 } from '@mui/icons-material'
 import { useState } from 'react'
-
-type FileType = 'pdf' | 'word' | 'article' | 'none'
 
 interface Folder {
   id: number
@@ -22,15 +19,14 @@ interface Folder {
   createdDate: string
 }
 
-interface Source {
+interface MathTemplate {
   id: number
   folderId: number | null
+  domain: string
+  domainCode: string
   description: string
-  author: string
-  tags: string[]
-  url: string
-  fileType: FileType
-  dateAdded: string
+  relatedStandards: string[]
+  dateCreated: string
 }
 
 interface BreadcrumbEntry {
@@ -39,108 +35,81 @@ interface BreadcrumbEntry {
 }
 
 const initialFolders: Folder[] = [
-  { id: 1, name: 'General Sources', color: '#6f52dd', parentId: null, createdDate: '2024-08-01' },
+  { id: 1, name: 'General Templates', color: '#6f52dd', parentId: null, createdDate: '2025-01-01' },
 ]
 
-const initialSources: Source[] = [
+const initialTemplates: MathTemplate[] = [
   {
     id: 1,
     folderId: 1,
-    description: 'DeFT: A conceptual framework for considering learning with multiple representations',
-    author: 'Ainsworth, S.',
-    tags: ['Representations', 'Framework'],
-    url: 'https://doi.org/10.1016/j.learninstruc.2006.03.001',
-    fileType: 'article',
-    dateAdded: '2024-08-05',
+    domain: 'Ratios & Proportional Relationships',
+    domainCode: 'NY-7.RP.1',
+    description: 'Compute unit rates associated with ratios of fractions, including ratios of lengths and other quantities.',
+    relatedStandards: ['NY-MLS', 'CCSS-M'],
+    dateCreated: '2025-01-10',
   },
   {
     id: 2,
     folderId: null,
-    description: 'Representations and translations among representations in mathematics learning and problem solving',
-    author: 'Lesh, R., Post, T., & Behr, M.',
-    tags: ['Representations', 'Problem Solving'],
-    url: '',
-    fileType: 'pdf',
-    dateAdded: '2024-08-05',
+    domain: 'Expressions & Equations',
+    domainCode: 'NY-7.EE.3',
+    description: 'Solve multi-step real-life and mathematical problems posed with positive and negative rational numbers.',
+    relatedStandards: ['NY-MLS'],
+    dateCreated: '2025-01-18',
   },
   {
     id: 3,
     folderId: null,
-    description: 'Principles to actions: Ensuring mathematical success for all',
-    author: 'NCTM',
-    tags: ['Standards', 'Best Practices'],
-    url: '',
-    fileType: 'pdf',
-    dateAdded: '2024-08-10',
-  },
-  {
-    id: 4,
-    folderId: null,
-    description: '5 practices for orchestrating productive mathematics discussions (2nd ed.)',
-    author: 'Smith, M. S., & Stein, M. K.',
-    tags: ['Discussion', 'Pedagogy'],
-    url: '',
-    fileType: 'word',
-    dateAdded: '2024-09-01',
-  },
-  {
-    id: 5,
-    folderId: null,
-    description: 'The 5 practices in practice: Successfully orchestrating mathematical discourse in your middle school classroom',
-    author: 'Smith, M. S., Bill, V., & Sherin, B. L.',
-    tags: ['Discussion', 'Middle School'],
-    url: '',
-    fileType: 'word',
-    dateAdded: '2024-09-01',
-  },
-  {
-    id: 6,
-    folderId: null,
-    description: 'Taking action: Implementing effective mathematics teaching practices in grades 6–8',
-    author: 'Smith, M. S., Steele, M. D., & Raith, M. L.',
-    tags: ['Teaching Practices', 'Grades 6–8'],
-    url: '',
-    fileType: 'pdf',
-    dateAdded: '2024-09-15',
+    domain: 'Statistics & Probability',
+    domainCode: 'NY-7.SP.5',
+    description: 'Understand that the probability of a chance event is a number between 0 and 1 that expresses the likelihood of the event occurring.',
+    relatedStandards: ['NY-MLS', 'CCSS-M', 'TEKS'],
+    dateCreated: '2025-02-04',
   },
 ]
 
 const FOLDER_COLORS = ['#6f52dd', '#2e7d32', '#c62828', '#1565c0', '#e65100', '#6a1b9a']
 
-const fileTypeOptions = ['All', 'PDF', 'Word', 'Article', 'None']
+const domainOptions = [
+  'All',
+  'Ratios & Proportional Relationships',
+  'The Number System',
+  'Expressions & Equations',
+  'Geometry',
+  'Statistics & Probability',
+  'Functions',
+  'Number & Quantity',
+  'Algebra',
+  'Modeling',
+]
 
-const fileTypeConfig: Record<FileType, { label: string; color: string; icon: React.ReactNode }> = {
-  pdf:     { label: 'PDF',     color: '#d32f2f', icon: <PictureAsPdf sx={{ fontSize: 14 }} /> },
-  word:    { label: 'Word',    color: '#1565c0', icon: <Description sx={{ fontSize: 14 }} /> },
-  article: { label: 'Article', color: '#2e7d32', icon: <Article sx={{ fontSize: 14 }} /> },
-  none:    { label: '—',       color: 'text.disabled', icon: null },
-}
+const standardOptions = ['All', 'NY-MLS', 'CCSS-M', 'TEKS']
 
-export default function SourceManagement() {
+export default function MathTemplates() {
   const [folders, setFolders] = useState<Folder[]>(initialFolders)
-  const [sources, setSources] = useState<Source[]>(initialSources)
+  const [templates, setTemplates] = useState<MathTemplate[]>(initialTemplates)
 
-  // breadcrumbs stack — empty = root
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbEntry[]>([])
   const currentFolderId: number | null =
     breadcrumbs.length > 0 ? breadcrumbs[breadcrumbs.length - 1].id : null
 
   // Filters
   const [search, setSearch] = useState('')
-  const [filterFileType, setFilterFileType] = useState('All')
+  const [filterDomain, setFilterDomain] = useState('All')
+  const [filterStandard, setFilterStandard] = useState('All')
   const [filterDate, setFilterDate] = useState('')
 
-  const isFiltered = search !== '' || filterFileType !== 'All' || filterDate !== ''
-  const clearFilters = () => { setSearch(''); setFilterFileType('All'); setFilterDate('') }
+  const isFiltered = search !== '' || filterDomain !== 'All' || filterStandard !== 'All' || filterDate !== ''
+  const clearFilters = () => { setSearch(''); setFilterDomain('All'); setFilterStandard('All'); setFilterDate('') }
 
-  // Folder dialog (create / rename)
+  // Folder dialog
   const [folderDialogOpen, setFolderDialogOpen] = useState(false)
   const [editingFolder, setEditingFolder] = useState<Folder | null>(null)
   const [folderNameInput, setFolderNameInput] = useState('')
 
-  // Move-to-folder dialog
+  // Move dialog
   const [moveDialogOpen, setMoveDialogOpen] = useState(false)
-  const [movingSourceId, setMovingSourceId] = useState<number | null>(null)
+  const [movingTemplateId, setMovingTemplateId] = useState<number | null>(null)
   const [targetFolderId, setTargetFolderId] = useState<number | ''>('')
 
   // ─── Navigation ────────────────────────────────────────────────────────────
@@ -161,21 +130,22 @@ export default function SourceManagement() {
     .filter((f) => f.parentId === currentFolderId)
     .filter((f) => !search || f.name.toLowerCase().includes(search.toLowerCase()))
 
-  const visibleSources = sources
-    .filter((s) => s.folderId === currentFolderId)
-    .filter((s) => {
-      if (search && !s.description.toLowerCase().includes(search.toLowerCase()) && !s.author.toLowerCase().includes(search.toLowerCase())) return false
-      if (filterFileType !== 'All' && s.fileType !== filterFileType.toLowerCase()) return false
-      if (filterDate && s.dateAdded !== filterDate) return false
+  const visibleTemplates = templates
+    .filter((t) => t.folderId === currentFolderId)
+    .filter((t) => {
+      if (search && !t.description.toLowerCase().includes(search.toLowerCase()) && !t.domainCode.toLowerCase().includes(search.toLowerCase())) return false
+      if (filterDomain !== 'All' && t.domain !== filterDomain) return false
+      if (filterStandard !== 'All' && !t.relatedStandards.includes(filterStandard)) return false
+      if (filterDate && t.dateCreated !== filterDate) return false
       return true
     })
 
-  const isEmpty = visibleFolders.length === 0 && visibleSources.length === 0
+  const isEmpty = visibleFolders.length === 0 && visibleTemplates.length === 0
 
   // ─── Actions ───────────────────────────────────────────────────────────────
 
-  const handleDeleteSource = (id: number) =>
-    setSources((prev) => prev.filter((s) => s.id !== id))
+  const handleDeleteTemplate = (id: number) =>
+    setTemplates((prev) => prev.filter((t) => t.id !== id))
 
   const handleDeleteFolder = (folderId: number) => {
     const collectDescendants = (id: number): number[] => {
@@ -184,8 +154,8 @@ export default function SourceManagement() {
     }
     const toDelete = new Set(collectDescendants(folderId))
     setFolders((prev) => prev.filter((f) => !toDelete.has(f.id)))
-    setSources((prev) =>
-      prev.map((s) => (s.folderId !== null && toDelete.has(s.folderId) ? { ...s, folderId: null } : s))
+    setTemplates((prev) =>
+      prev.map((t) => (t.folderId !== null && toDelete.has(t.folderId) ? { ...t, folderId: null } : t))
     )
   }
 
@@ -218,16 +188,16 @@ export default function SourceManagement() {
     setFolderDialogOpen(false)
   }
 
-  const openMoveDialog = (sourceId: number) => {
-    setMovingSourceId(sourceId)
+  const openMoveDialog = (templateId: number) => {
+    setMovingTemplateId(templateId)
     setTargetFolderId('')
     setMoveDialogOpen(true)
   }
 
   const handleMoveConfirm = () => {
-    if (movingSourceId !== null && targetFolderId !== '') {
-      setSources((prev) =>
-        prev.map((s) => (s.id === movingSourceId ? { ...s, folderId: targetFolderId as number } : s))
+    if (movingTemplateId !== null && targetFolderId !== '') {
+      setTemplates((prev) =>
+        prev.map((t) => (t.id === movingTemplateId ? { ...t, folderId: targetFolderId as number } : t))
       )
     }
     setMoveDialogOpen(false)
@@ -240,9 +210,9 @@ export default function SourceManagement() {
       {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={3}>
         <Box>
-          <Typography variant="h4" fontWeight={600}>Sources</Typography>
+          <Typography variant="h4" fontWeight={600}>Math Templates</Typography>
           <Typography variant="body1" color="text.secondary">
-            Manage research sources used to inform lesson generation.
+            Organize and manage math templates by domain and standard.
           </Typography>
         </Box>
         <Stack direction="row" gap={1} mt={0.5}>
@@ -254,8 +224,12 @@ export default function SourceManagement() {
           >
             New Folder
           </Button>
-          <Button variant="contained" startIcon={<Add />} sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' } }}>
-            Add Source
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' } }}
+          >
+            Add Template
           </Button>
         </Stack>
       </Stack>
@@ -268,7 +242,7 @@ export default function SourceManagement() {
             sx={{ cursor: 'pointer', color: '#6f52dd', '&:hover': { textDecoration: 'underline' } }}
             onClick={() => navigateTo(-1)}
           >
-            Sources
+            Math Templates
           </Typography>
           {breadcrumbs.map((b, i) => (
             <Box key={b.id} display="flex" alignItems="center" gap={0.5}>
@@ -293,22 +267,27 @@ export default function SourceManagement() {
       <Box display="flex" gap={2} mb={2} flexWrap="wrap" alignItems="center">
         <TextField
           size="small"
-          placeholder="Search by description or author…"
+          placeholder="Search by description or code…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ minWidth: 300 }}
+          sx={{ minWidth: 260 }}
           InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
         />
-        <TextField select size="small" label="File Type" value={filterFileType} onChange={(e) => setFilterFileType(e.target.value)} sx={{ minWidth: 130 }}>
-          {fileTypeOptions.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+        <TextField
+          select size="small" label="Domain" value={filterDomain}
+          onChange={(e) => setFilterDomain(e.target.value)} sx={{ minWidth: 220 }}
+        >
+          {domainOptions.map((d) => <MenuItem key={d} value={d}>{d}</MenuItem>)}
         </TextField>
         <TextField
-          type="date"
-          size="small"
-          label="Date Added"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          sx={{ minWidth: 160 }}
+          select size="small" label="Standard" value={filterStandard}
+          onChange={(e) => setFilterStandard(e.target.value)} sx={{ minWidth: 130 }}
+        >
+          {standardOptions.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+        </TextField>
+        <TextField
+          type="date" size="small" label="Date Created" value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)} sx={{ minWidth: 160 }}
           InputLabelProps={{ shrink: true }}
           inputProps={{ sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } } }}
         />
@@ -324,12 +303,12 @@ export default function SourceManagement() {
         <Table sx={{ tableLayout: 'fixed', width: '100%' }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ width: '35%' }}><Typography fontWeight={600}>Name</Typography></TableCell>
-              <TableCell sx={{ width: '18%' }}><Typography fontWeight={600}>Author</Typography></TableCell>
-              <TableCell sx={{ width: '15%' }}><Typography fontWeight={600}>URL / DOI</Typography></TableCell>
-              <TableCell sx={{ width: '9%' }}><Typography fontWeight={600}>File Type</Typography></TableCell>
-              <TableCell sx={{ width: '10%' }}><Typography fontWeight={600}>Date Added</Typography></TableCell>
-              <TableCell sx={{ width: '13%' }} align="right"><Typography fontWeight={600}>Actions</Typography></TableCell>
+              <TableCell sx={{ width: '16%' }}><Typography fontWeight={600}>Domain</Typography></TableCell>
+              <TableCell sx={{ width: '11%' }}><Typography fontWeight={600}>Domain Code</Typography></TableCell>
+              <TableCell sx={{ width: '30%' }}><Typography fontWeight={600}>Description</Typography></TableCell>
+              <TableCell sx={{ width: '20%' }}><Typography fontWeight={600}>Related Standards</Typography></TableCell>
+              <TableCell sx={{ width: '11%' }}><Typography fontWeight={600}>Date Created</Typography></TableCell>
+              <TableCell sx={{ width: '12%' }} align="right"><Typography fontWeight={600}>Actions</Typography></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -341,15 +320,12 @@ export default function SourceManagement() {
                 sx={{ cursor: 'pointer' }}
                 onClick={() => navigateInto(folder)}
               >
-                <TableCell>
+                <TableCell colSpan={4}>
                   <Box display="flex" alignItems="center" gap={1.5}>
                     <FolderIcon sx={{ fontSize: 22, color: folder.color }} />
                     <Typography fontWeight={500}>{folder.name}</Typography>
                   </Box>
                 </TableCell>
-                <TableCell />
-                <TableCell />
-                <TableCell />
                 <TableCell>
                   <Typography variant="body2" color="text.secondary">{folder.createdDate}</Typography>
                 </TableCell>
@@ -368,79 +344,52 @@ export default function SourceManagement() {
               </TableRow>
             ))}
 
-            {/* ── Source rows ── */}
-            {visibleSources.map((source) => {
-              const ft = fileTypeConfig[source.fileType]
-              return (
-                <TableRow key={`source-${source.id}`} hover>
-                  <TableCell sx={{ overflow: 'hidden' }}>
-                    <Box display="flex" alignItems="center" gap={1.5}>
-                      <InsertDriveFile sx={{ fontSize: 20, color: 'text.disabled', flexShrink: 0 }} />
-                      <Tooltip title={source.description} placement="top-start">
-                        <Typography variant="body2" noWrap>{source.description}</Typography>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                  <TableCell sx={{ overflow: 'hidden' }}>
-                    <Typography variant="body2">{source.author}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    {source.url ? (
-                      <Box display="flex" alignItems="center" gap={0.5} sx={{ overflow: 'hidden' }}>
-                        <LinkOutlined sx={{ fontSize: 15, color: '#6f52dd', flexShrink: 0 }} />
-                        <Tooltip title={source.url} placement="top-start">
-                          <Typography
-                            variant="body2"
-                            component="a"
-                            href={source.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            noWrap
-                            sx={{ color: '#6f52dd', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                          >
-                            {source.url.replace('https://doi.org/', 'DOI: ')}
-                          </Typography>
-                        </Tooltip>
-                      </Box>
-                    ) : (
-                      <Typography variant="body2" color="text.disabled">—</Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {source.fileType !== 'none' ? (
-                      <Chip
-                        icon={ft.icon as React.ReactElement}
-                        label={ft.label}
-                        size="small"
-                        sx={{ bgcolor: `${ft.color}18`, color: ft.color, fontWeight: 500, border: `1px solid ${ft.color}40` }}
-                      />
-                    ) : (
-                      <Typography variant="body2" color="text.disabled">—</Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{source.dateAdded}</Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Tooltip title="Move to folder">
-                      <IconButton size="small" color="primary" onClick={() => openMoveDialog(source.id)}>
-                        <DriveFileMove fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit">
-                      <IconButton size="small" color="primary">
-                        <Edit fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <IconButton size="small" color="error" onClick={() => handleDeleteSource(source.id)}>
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
+            {/* ── Template rows ── */}
+            {visibleTemplates.map((template) => (
+              <TableRow key={`template-${template.id}`} hover>
+                <TableCell sx={{ overflow: 'hidden' }}>
+                  <Box display="flex" alignItems="center" gap={1.5}>
+                    <InsertDriveFile sx={{ fontSize: 20, color: 'text.disabled', flexShrink: 0 }} />
+                    <Typography variant="body2" noWrap>{template.domain}</Typography>
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={500} color="#6f52dd">{template.domainCode}</Typography>
+                </TableCell>
+                <TableCell sx={{ overflow: 'hidden' }}>
+                  <Tooltip title={template.description} placement="top-start">
+                    <Typography variant="body2" noWrap>{template.description}</Typography>
+                  </Tooltip>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" gap={0.5} flexWrap="wrap">
+                    {template.relatedStandards.map((s) => (
+                      <Chip key={s} label={s} size="small" sx={{ bgcolor: '#ede9fb', color: '#6f52dd', fontWeight: 500 }} />
+                    ))}
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">{template.dateCreated}</Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Tooltip title="Move to folder">
+                    <IconButton size="small" color="primary" onClick={() => openMoveDialog(template.id)}>
+                      <DriveFileMove fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Edit">
+                    <IconButton size="small" color="primary">
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton size="small" color="error" onClick={() => handleDeleteTemplate(template.id)}>
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))}
 
             {/* ── Empty state ── */}
             {isEmpty && (
@@ -475,10 +424,7 @@ export default function SourceManagement() {
         <DialogTitle>{editingFolder ? 'Rename Folder' : 'New Folder'}</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
-            fullWidth
-            label="Folder name"
-            value={folderNameInput}
+            autoFocus fullWidth label="Folder name" value={folderNameInput}
             onChange={(e) => setFolderNameInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleFolderDialogConfirm()}
             sx={{ mt: 1 }}
@@ -487,8 +433,7 @@ export default function SourceManagement() {
         <DialogActions>
           <Button onClick={() => setFolderDialogOpen(false)}>Cancel</Button>
           <Button
-            variant="contained"
-            onClick={handleFolderDialogConfirm}
+            variant="contained" onClick={handleFolderDialogConfirm}
             disabled={!folderNameInput.trim()}
             sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' } }}
           >
@@ -504,8 +449,7 @@ export default function SourceManagement() {
           <FormControl fullWidth sx={{ mt: 1 }}>
             <InputLabel>Select folder</InputLabel>
             <Select
-              label="Select folder"
-              value={targetFolderId}
+              label="Select folder" value={targetFolderId}
               onChange={(e) => setTargetFolderId(e.target.value as number)}
             >
               {folders.map((f) => (
@@ -522,8 +466,7 @@ export default function SourceManagement() {
         <DialogActions>
           <Button onClick={() => setMoveDialogOpen(false)}>Cancel</Button>
           <Button
-            variant="contained"
-            onClick={handleMoveConfirm}
+            variant="contained" onClick={handleMoveConfirm}
             disabled={targetFolderId === ''}
             sx={{ bgcolor: '#6f52dd', '&:hover': { bgcolor: '#5a3fc0' } }}
           >

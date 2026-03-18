@@ -109,6 +109,8 @@ const subcategoryMap: Record<string, string[]> = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CreateLesson() {
+  const [toolMode, setToolMode] = useState<'create' | 'adapt'>('create')
+
   const [grade, setGrade] = useState('')
   const [format, setFormat] = useState('')
   const [standardFramework, setStandardFramework] = useState('')
@@ -202,8 +204,50 @@ export default function CreateLesson() {
         {/* Right card — configuration form */}
         <Card variant="outlined" sx={{ borderRadius: 2, height: '100%' }}>
           <CardContent>
-            <Typography fontWeight={600} mb={3}>Tool Configuration</Typography>
+            <Typography fontWeight={600} mb={2}>Tool Configuration</Typography>
 
+            {/* Mode selector */}
+            <FormControl sx={{ mb: 2 }}>
+              <RadioGroup
+                row
+                value={toolMode}
+                onChange={(e) => setToolMode(e.target.value as 'create' | 'adapt')}
+              >
+                <FormControlLabel
+                  value="create"
+                  control={<Radio size="small" sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }} />}
+                  label={<Typography variant="body2" fontWeight={500}>Create New Tool</Typography>}
+                />
+                <FormControlLabel
+                  value="adapt"
+                  control={<Radio size="small" sx={{ color: '#6f52dd', '&.Mui-checked': { color: '#6f52dd' } }} />}
+                  label={<Typography variant="body2" fontWeight={500}>Adapt Existing Tool</Typography>}
+                />
+              </RadioGroup>
+            </FormControl>
+
+            {/* Adapt mode — upload box */}
+            {toolMode === 'adapt' && (
+              <Box
+                component="label"
+                sx={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: 0.25, py: 3, px: 2, cursor: 'pointer', borderRadius: 2, mb: 2,
+                  border: '2px dashed', borderColor: '#b39ddb',
+                  color: '#6f52dd', bgcolor: '#faf8ff',
+                  transition: '0.15s',
+                  '&:hover': { borderColor: '#6f52dd', bgcolor: '#ede9fb' },
+                }}
+              >
+                <UploadFile sx={{ fontSize: 28 }} />
+                <Typography variant="body2" fontWeight={500} mt={0.5}>Upload a tool to adapt</Typography>
+                <Typography variant="caption" color="text.secondary">PDF, Word, or TXT file</Typography>
+                <input type="file" hidden multiple accept=".pdf,.doc,.docx,.txt" />
+              </Box>
+            )}
+
+            {/* Form fields — disabled when in adapt mode */}
+            <Box sx={{ opacity: toolMode === 'adapt' ? 0.45 : 1, pointerEvents: toolMode === 'adapt' ? 'none' : 'auto' }}>
             <Box display="flex" flexDirection="column" gap={2.5}>
 
               {/* Standard Framework */}
@@ -373,24 +417,9 @@ export default function CreateLesson() {
               >
                 Advanced Settings
               </Button>
-              
-              <Box
-                component="label"
-                sx={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  gap: 0.25, py: 2.5, px: 2, cursor: 'pointer', borderRadius: 2,
-                  border: '2px dashed', borderColor: '#b39ddb',
-                  color: '#6f52dd', bgcolor: '#faf8ff',
-                  transition: '0.15s',
-                  '&:hover': { borderColor: '#6f52dd', bgcolor: '#ede9fb' },
-                }}
-              >
-                <UploadFile sx={{ fontSize: 24 }} />
-                <Typography variant="body2" fontWeight={500}>Adapt existing tool (optional)</Typography>
-                <input type="file" hidden multiple accept=".pdf,.doc,.docx,.txt" />
-              </Box>
 
             </Box>
+            </Box>{/* end disabled wrapper */}
 
 
             {/* Generate button */}

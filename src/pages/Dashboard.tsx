@@ -51,7 +51,7 @@ const recentLessons = [
   { title: 'Fractions in Cooking', standard: 'CCSS 4.NF', date: 'Yesterday', status: 'Published' },
   { title: 'Geometry in Basketball', standard: 'CCSS 5.G', date: '3 days ago', status: 'Draft' },
   { title: 'Division Strategies', standard: 'CCSS 3.OA', date: '4 days ago', status: 'Published' },
-  { title: 'Place Value with Money', standard: 'CCSS 2.NBT', date: '5 days ago', status: 'Draft' },
+  { title: 'Fractions with Serena Williams', standard: 'CCSS 2.NBT', date: '5 days ago', status: 'Draft' },
 ]
 
 const standardsCoverage = [

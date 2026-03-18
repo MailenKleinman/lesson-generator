@@ -81,23 +81,23 @@ const topicOptionsMap: Record<string, string[]> = {
   'Activists': ['Martin Luther King Jr.', 'Rosa Parks', 'Malcolm X', 'Harriet Tubman', 'Angela Davis', 'John Lewis', 'Fannie Lou Hamer'],
   'Authors': ['Maya Angelou', 'Langston Hughes', 'Toni Morrison', 'James Baldwin', 'Zora Neale Hurston', 'Walter Dean Myers'],
   'Characters': ['Luke Cage', 'Black Panther', 'Miles Morales', 'Storm', 'Static Shock', 'Shuri'],
-  'Entertainers': ['Beyoncé', 'Michael Jackson', 'Tupac Shakur', 'Nina Simone', 'Prince', 'Josephine Baker'],
-  'Entrepreneurs': ['Madam C.J. Walker', 'Robert F. Smith', 'Jay-Z', 'Oprah Winfrey', 'Daymond John'],
+  'Entertainers': ['Beyoncé', 'Tupac Shakur', 'Nina Simone', 'Prince', 'Josephine Baker'],
+  'Entrepreneurs': ['Madam C.J. Walker', 'Robert F. Smith', 'Oprah Winfrey', 'Daymond John'],
   'Inventors': ['Lewis Howard Latimer', 'Garrett Morgan', 'Granville T. Woods', 'Patricia Bath', 'Charles Drew'],
   'Politicians': ['Barack Obama', 'Shirley Chisholm', 'Kamala Harris', 'John Lewis', 'Thurgood Marshall'],
   'Scholars': ['W.E.B. Du Bois', 'Frederick Douglass', 'bell hooks', 'Cornel West', 'Henry Louis Gates Jr.'],
   'Scientists & Mathematicians': ['Katherine Johnson', 'Mae Jemison', 'Neil deGrasse Tyson', 'Hidden Figures', 'Benjamin Banneker', 'Charles Henry Turner'],
   // Culture
   'Art': ['Adinkra Symbols', 'Harlem Renaissance', 'African Masks', 'Street Art & Graffiti', 'Quilting Traditions'],
-  'Cuisine': ['Soul Food', 'Caribbean Cuisine', 'West African Dishes', 'Juneteenth Foods', 'Diaspora Cooking'],
-  'Dance': ['Double Dutch', 'Stepping', 'African Traditional Dance', 'Hip-Hop Dance', 'Lindy Hop'],
+  'Cuisine': ['Soul Food', 'Caribbean Cuisine', 'West African Dishes', 'Juneteenth Foods'],
+  'Dance': ['Double Dutch', 'Stepping', 'Hip-Hop Dance', 'Lindy Hop'],
   'Film': ['Black Panther', 'Hidden Figures', 'Selma', 'Do the Right Thing', 'Moonlight'],
   'Music': ['Hip-Hop Origins', 'Jazz History', 'Blues', 'Gospel', 'Afrobeats'],
-  'Traditions & Holidays': ['Kwanzaa', 'Juneteenth', 'Carnival', 'Day of the Dead', 'African New Year'],
+  'Traditions & Holidays': ['Kwanzaa', 'Juneteenth'],
   // Places & Events
-  'African Diaspora': ['Caribbean Islands', 'Brazil', 'New Orleans', 'Harlem', 'South Africa'],
+  'African Diaspora': ['Caribbean Islands', 'Brazil', 'New Orleans', 'Harlem'],
   'History of Africa': ['Ancient Egypt', 'Mali Empire', 'Kingdom of Kush', 'Great Zimbabwe', 'Timbuktu'],
-  'U.S. Black History': ['Reconstruction Era', 'Civil Rights Movement', 'Harlem Renaissance', 'Great Migration', 'Black Wall Street'],
+  'U.S. Black History': ['Reconstruction Era', 'Civil Rights Movement', 'Harlem Renaissance', 'Black Wall Street'],
 }
 
 const subcategoryMap: Record<string, string[]> = {
@@ -626,16 +626,6 @@ export default function CreateLesson() {
                     <Box>
                       <Typography variant="body2">Apply GLEAM Framework</Typography>
                       <Typography variant="caption" color="text.secondary">Embed culturally responsive elements throughout exercises.</Typography>
-                    </Box>
-                  }
-                  sx={{ alignItems: 'flex-start', mb: 1.5 }}
-                />
-                <FormControlLabel
-                  control={<Switch checked={scaffolding} onChange={(e) => setScaffolding(e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#6f52dd' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#6f52dd' } }} />}
-                  label={
-                    <Box>
-                      <Typography variant="body2">Include Scaffolding</Typography>
-                      <Typography variant="caption" color="text.secondary">Add hints, sentence starters, or worked examples.</Typography>
                     </Box>
                   }
                   sx={{ alignItems: 'flex-start', mb: 1.5 }}

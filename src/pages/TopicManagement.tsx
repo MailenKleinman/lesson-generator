@@ -26,7 +26,6 @@ const initialTopics: Topic[] = [
   { id: 5, description: 'Hip-Hop Origins', sourceType: 'none', sourceValue: '', category: 'Culture', subcategory: 'Music', createdDate: '2024-09-15' },
   { id: 6, description: 'Ancient Egypt', sourceType: 'url', sourceValue: 'https://examplesource.com', category: 'Places & Events', subcategory: 'History of Africa', createdDate: '2024-09-22' },
   { id: 7, description: 'Serena Williams', sourceType: 'none', sourceValue: '', category: 'People', subcategory: 'Athletes', createdDate: '2024-10-05' },
-  { id: 8, description: 'Kwanzaa', sourceType: 'document', sourceValue: 'kwanzaa_traditions.pdf', category: 'Culture', subcategory: 'Traditions & Holidays', createdDate: '2024-10-18' },
 ]
 
 const categories = ['All', 'People', 'Culture', 'Places & Events']

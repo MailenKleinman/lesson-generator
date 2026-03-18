@@ -1,7 +1,7 @@
 import {
   Typography, Box, Button, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, IconButton,
-  TextField, MenuItem, InputAdornment,
+  TextField, MenuItem, InputAdornment, Tooltip,
 } from '@mui/material'
 import { Add, Edit, Delete, Search, FilterListOff } from '@mui/icons-material'
 import { useState } from 'react'
@@ -21,7 +21,11 @@ const initialStandards: Standard[] = [
 
 const allTags = ['All', ...Array.from(new Set(initialStandards.flatMap((s) => s.tags)))]
 
-export default function AddStandards() {
+interface AddStandardsProps {
+  onEdit: (id: number, description: string) => void
+}
+
+export default function AddStandards({ onEdit }: AddStandardsProps) {
   const [standards, setStandards] = useState<Standard[]>(initialStandards)
   const [search, setSearch] = useState('')
   const [filterTag, setFilterTag] = useState('All')
@@ -107,12 +111,16 @@ export default function AddStandards() {
                   <Typography variant="body2">{standard.createdDate}</Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" color="primary">
-                    <Edit fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(standard.id)} color="error">
-                    <Delete fontSize="small" />
-                  </IconButton>
+                  <Tooltip title="Edit">
+                    <IconButton size="small" color="primary" onClick={() => onEdit(standard.id, standard.description)}>
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton size="small" onClick={() => handleDelete(standard.id)} color="error">
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

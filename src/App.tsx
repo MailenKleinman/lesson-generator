@@ -12,22 +12,7 @@ import DataManagement from './pages/DataManagement'
 import UsersManagement from './pages/UsersManagement'
 import TopicManagement from './pages/TopicManagement'
 import SourceManagement from './pages/SourceManagement'
-
-function renderPage(page: Page) {
-  switch (page) {
-    case 'home': return <Dashboard />
-    case 'createLesson': return <CreateLesson />
-    case 'myLessons': return <Lessons />
-    case 'profile': return <Profile />
-    case 'helpImprove': return <HelpImprove />
-    case 'support': return <Support />
-    case 'addStandards': return <AddStandards />
-    case 'dataManagement': return <DataManagement />
-    case 'usersManagement': return <UsersManagement />
-    case 'contentEditor': return <SourceManagement />
-    case 'topicManagement': return <TopicManagement />
-  }
-}
+import EditStandard from './pages/EditStandard'
 
 export default function App() {
   const theme = useTheme()
@@ -35,6 +20,36 @@ export default function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(!isSmall)
   const [activePage, setActivePage] = useState<Page>('home')
+  const [editingStandardId, setEditingStandardId] = useState<number | null>(null)
+  const [editingStandardDescription, setEditingStandardDescription] = useState('')
+
+  const navigateTo = (page: Page) => {
+    setActivePage(page)
+    if (isSmall) setSidebarOpen(false)
+  }
+
+  const handleEditStandard = (id: number, description: string) => {
+    setEditingStandardId(id)
+    setEditingStandardDescription(description)
+    setActivePage('editStandard')
+  }
+
+  function renderPage(page: Page) {
+    switch (page) {
+      case 'home': return <Dashboard />
+      case 'createLesson': return <CreateLesson />
+      case 'myLessons': return <Lessons />
+      case 'profile': return <Profile />
+      case 'helpImprove': return <HelpImprove />
+      case 'support': return <Support />
+      case 'addStandards': return <AddStandards onEdit={handleEditStandard} />
+      case 'editStandard': return <EditStandard standardId={editingStandardId} standardDescription={editingStandardDescription} onBack={() => setActivePage('addStandards')} />
+      case 'dataManagement': return <DataManagement />
+      case 'usersManagement': return <UsersManagement />
+      case 'contentEditor': return <SourceManagement />
+      case 'topicManagement': return <TopicManagement />
+    }
+  }
 
 return (
     <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
@@ -42,10 +57,7 @@ return (
         open={sidebarOpen}
         activePage={activePage}
         onToggle={() => setSidebarOpen((o) => !o)}
-        onNavigate={(page) => {
-          setActivePage(page)
-          if (isSmall) setSidebarOpen(false)
-        }}
+        onNavigate={navigateTo}
       />
 
       <Box

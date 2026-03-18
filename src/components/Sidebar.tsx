@@ -36,6 +36,7 @@ export type Page =
   | 'helpImprove'
   | 'support'
   | 'addStandards'
+  | 'editStandard'
   | 'dataManagement'
   | 'usersManagement'
   | 'contentEditor'

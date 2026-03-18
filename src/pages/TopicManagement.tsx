@@ -1,7 +1,7 @@
 import {
   Typography, Box, Button, Chip, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, IconButton,
-  TextField, MenuItem, InputAdornment,
+  TextField, MenuItem, InputAdornment, Tooltip,
 } from '@mui/material'
 import { Add, Edit, Delete, Search, LinkOutlined, InsertDriveFileOutlined, FilterListOff } from '@mui/icons-material'
 import { useState } from 'react'
@@ -179,12 +179,16 @@ export default function TopicManagement() {
                   <Typography variant="body2">{topic.createdDate}</Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" color="primary">
-                    <Edit fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" color="error" onClick={() => handleDelete(topic.id)}>
-                    <Delete fontSize="small" />
-                  </IconButton>
+                  <Tooltip title="Edit">
+                    <IconButton size="small" color="primary">
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton size="small" color="error" onClick={() => handleDelete(topic.id)}>
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
